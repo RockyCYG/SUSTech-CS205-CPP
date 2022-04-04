@@ -1,42 +1,43 @@
+#include <chrono>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <chrono>
 #include "cnn.cpp"
 
 using namespace std;
 using namespace cv;
 
-//»ñÈ¡Ê±¼ä´Á
-time_t getTimeStamp()
-{
-    chrono::time_point<chrono::system_clock, chrono::milliseconds> tp = chrono::time_point_cast<chrono::milliseconds>(
+//è·å–æ—¶é—´æˆ³
+time_t getTimeStamp() {
+    chrono::time_point<chrono::system_clock, chrono::milliseconds> tp =
+        chrono::time_point_cast<chrono::milliseconds>(
             chrono::system_clock::now());
     time_t timestamp = tp.time_since_epoch().count();
     return timestamp;
 }
 
-//¶Ô´«ÈëµÄÍ¼Ïñ×öÍêÕûµÄ¾í»ı²Ù×÷£¬²¢·µ»ØÈËÁ³µÄ¸ÅÂÊ
-vector<float> CNN(const string &path)
-{
+//å¯¹ä¼ å…¥çš„å›¾åƒåšå®Œæ•´çš„å·ç§¯æ“ä½œï¼Œå¹¶è¿”å›äººè„¸çš„æ¦‚ç‡
+vector<float> CNN(const string& path) {
     time_t start, end;
-    cout << "¶ÁÈëÍ¼Ïñ£º";
+    cout << "è¯»å…¥å›¾åƒï¼š";
     start = getTimeStamp();
     Mat img = imread(path);
     end = getTimeStamp();
     cout << (end - start) << " ms" << endl;
-    cout << "½«Í¼ÏñÖĞµÄÊı¾İ×ª»»³ÉfloatÀàĞÍ£º";
+    cout << "å°†å›¾åƒä¸­çš„æ•°æ®è½¬æ¢æˆfloatç±»å‹ï¼š";
     start = getTimeStamp();
     img.convertTo(img, CV_32FC3, 1.0 / 255);
     end = getTimeStamp();
     cout << (end - start) << " ms" << endl;
-    Matrix<float> input1, Relu1, MaxPooling1, input2, Relu2, MaxPooling2, input3, Relu3, finalResult;
+    Matrix<float> input1, Relu1, MaxPooling1, input2, Relu2, MaxPooling2,
+        input3, Relu3, finalResult;
     cout << "-----------------------------" << endl;
-    cout << "µÚÒ»´Î¾í»ı£º" << endl;
+    cout << "ç¬¬ä¸€æ¬¡å·ç§¯ï¼š" << endl;
     cout << "imgToMat(): ";
     start = getTimeStamp();
-    imgToMat(img, input1, conv_params[0].kernel_size, conv_params[0].pad, conv_params[0].stride);
+    imgToMat(img, input1, conv_params[0].kernel_size, conv_params[0].pad,
+             conv_params[0].stride);
     end = getTimeStamp();
     cout << (end - start) << " ms" << endl;
     cout << "convAndRelu(): ";
@@ -51,11 +52,12 @@ vector<float> CNN(const string &path)
     cout << (end - start) << "ms" << endl;
     cout << "convResToMat(): ";
     start = getTimeStamp();
-    convResToMat(MaxPooling1, input2, conv_params[1].kernel_size, conv_params[1].pad, conv_params[1].stride);
+    convResToMat(MaxPooling1, input2, conv_params[1].kernel_size,
+                 conv_params[1].pad, conv_params[1].stride);
     end = getTimeStamp();
     cout << (end - start) << "ms" << endl;
     cout << "-----------------------------" << endl;
-    cout << "µÚ¶ş´Î¾í»ı£º" << endl;
+    cout << "ç¬¬äºŒæ¬¡å·ç§¯ï¼š" << endl;
     cout << "convAndRelu(): ";
     start = getTimeStamp();
     convAndRelu(input2, conv_params[1], Relu2);
@@ -68,11 +70,12 @@ vector<float> CNN(const string &path)
     cout << (end - start) << "ms" << endl;
     cout << "convResToMat(): ";
     start = getTimeStamp();
-    convResToMat(MaxPooling2, input3, conv_params[2].kernel_size, conv_params[2].pad, conv_params[2].stride);
+    convResToMat(MaxPooling2, input3, conv_params[2].kernel_size,
+                 conv_params[2].pad, conv_params[2].stride);
     end = getTimeStamp();
     cout << (end - start) << "ms" << endl;
     cout << "-----------------------------" << endl;
-    cout << "µÚÈı´Î¾í»ı£º" << endl;
+    cout << "ç¬¬ä¸‰æ¬¡å·ç§¯ï¼š" << endl;
     cout << "convAndRelu(): ";
     start = getTimeStamp();
     convAndRelu(input3, conv_params[2], Relu3);
@@ -87,6 +90,7 @@ vector<float> CNN(const string &path)
     cout << (end - start) << " ms" << endl;
     cout << "softMax: ";
     start = getTimeStamp();
+    // softmax
     float x = finalResult.getData()[0];
     float y = finalResult.getData()[1];
     float sum = exp(x) + exp(y);
@@ -97,15 +101,14 @@ vector<float> CNN(const string &path)
     return {p1, p2};
 }
 
-int main()
-{
-    string path = "../samples/HuaShan.jpg";
+int main() {
+    string path = "../samples/me.png";
     string picture = path.substr(11);
     time_t start = getTimeStamp();
     vector<float> ans = CNN(path);
     time_t end = getTimeStamp();
     cout << "-----------------------------" << endl;
-    cout << "Õû¸ö¾í»ıÁ÷³ÌÊ±¼ä£º" << (end - start) << " ms" << endl;
+    cout << "æ•´ä¸ªå·ç§¯æµç¨‹æ—¶é—´ï¼š" << (end - start) << " ms" << endl;
     cout << endl;
     cout << picture << ": " << endl;
     cout << "bg score: " << ans[0] << endl;
